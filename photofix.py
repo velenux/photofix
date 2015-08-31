@@ -46,10 +46,10 @@ def mkdir_p(path):
 #
 def get_file_datetime(filename):
     fs_date = datetime.fromtimestamp(os.path.getmtime(filename))
-    print "%s fs_date: %s" % (fs_date.strftime("%s"))
+    print "%s fs_date: %s" % (filename, fs_date.strftime("%s"))
     try:
         exif_date = GExiv2.Metadata(filename).get_date_time()
-        print "%s exif_date: %s" % (exif_date.strftime("%s"))
+        print "%s exif_date: %s" % (filename, exif_date.strftime("%s"))
         if (fs_date > exif_date):
             return exif_date
         else:
@@ -78,6 +78,7 @@ def get_file_hash(filename):
 # moves the file and outputs the source and destination for logging
 #
 def move_file(filename, destination):
+    global DUP_COUNTER
     (original_directory, original_filename) = os.path.split(filename)
     (destination_directory, destination_filename) = os.path.split(destination)
     (original_base_filename, original_extension) = os.path.splitext(filename)
@@ -99,7 +100,7 @@ def move_file(filename, destination):
     # handle duplicates
     if os.path.isfile(destination) or destination_filename in EXISTING_FILES:
         print "WARNING: %s seems like a duplicate, redirecting..." % (filename)
-        DUP_COUNTER++
+        DUP_COUNTER += 1
         if (original_filename != destination_filename):
             newdest = os.path.join(PATH['duplicate'], "%s_%s-%s" % (original_base_filename, DUP_COUNTER, destination_filename))
         else:
