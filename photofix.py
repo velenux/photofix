@@ -99,6 +99,7 @@ def move_file(filename, destination):
     # handle duplicates
     if os.path.isfile(destination) or destination_filename in EXISTING_FILES:
         print "WARNING: %s seems like a duplicate, redirecting..." % (filename)
+        DUP_COUNTER++
         if (original_filename != destination_filename):
             newdest = os.path.join(PATH['duplicate'], "%s_%s-%s" % (original_base_filename, DUP_COUNTER, destination_filename))
         else:
