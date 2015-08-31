@@ -19,10 +19,10 @@ import errno
 # configuration
 VALID_IMAGES = set(['.cr2', '.crw', '.png', '.jpg', '.jpeg', '.tif', '.tiff'])
 PATH = {
-    'image': '/path/to/image/storage',
-    'non-image': '/path/to/non-image/storage',
-    'duplicate': '/path/to/duplicates/storage',
-    'failed': '/path/to/failed-to-copy/storage'
+    'image': 'storage/images',
+    'non-image': 'storage/non-images',
+    'duplicate': 'storage/duplicates',
+    'failed': 'storage/failed'
 }
 DUP_COUNTER = 0
 EXISTING_FILES = set([])
