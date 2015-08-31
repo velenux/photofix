@@ -14,9 +14,10 @@ from gi.repository import GExiv2
 
 # for moving files and dirs
 import shutil
+import errno
 
 # configuration
-VALID_IMAGES = set(['.cr2', '.png', '.jpg', '.jpeg', '.tif', '.tiff'])
+VALID_IMAGES = set(['.cr2', '.crw', '.png', '.jpg', '.jpeg', '.tif', '.tiff'])
 PATH = {
     'image': '/path/to/image/storage',
     'non-image': '/path/to/non-image/storage',
@@ -44,9 +45,11 @@ def mkdir_p(path):
 # retrieves the EXIF date, falls back to filesystem date
 #
 def get_file_datetime(filename):
-    fs_date   = datetime.fromtimestamp(os.path.getmtime(filename))
+    fs_date = datetime.fromtimestamp(os.path.getmtime(filename))
+    print "%s fs_date: %s" % (fs_date.strftime("%s"))
     try:
         exif_date = GExiv2.Metadata(filename).get_date_time()
+        print "%s exif_date: %s" % (exif_date.strftime("%s"))
         if (fs_date > exif_date):
             return exif_date
         else:
@@ -85,7 +88,7 @@ def move_file(filename, destination):
         destination = os.path.join(destination, original_filename)
 
     # debug
-    print "Preparing to move %s to %s ..." % (filename, destination)
+    print "%s preparing to move to %s" % (filename, destination)
 
     # handle destination links
     if os.path.islink(destination):
@@ -95,22 +98,22 @@ def move_file(filename, destination):
 
     # handle duplicates
     if os.path.isfile(destination) or destination_filename in EXISTING_FILES:
-        print "WARNING: %s seems like a duplicate, redirecting..." % (destination, filename)
+        print "WARNING: %s seems like a duplicate, redirecting..." % (filename)
         if (original_filename != destination_filename):
             newdest = os.path.join(PATH['duplicate'], "%s_%s-%s" % (original_base_filename, DUP_COUNTER, destination_filename))
         else:
             newdest = os.path.join(PATH['duplicate'], "%s_%s.%s" % (original_base_filename, DUP_COUNTER, original_extension))
         return move_file(filename, newdest)
 
-    # mkdir_p(destination_directory)
-    print "%s -> %s" % (filename, destination)
-    #try:
-    #   shutil.move(filename, destination)
-    #   if destination_directory.startswith(PATH['image']):
-    #       EXISTING_FILES.add(destination_filename)
-    #except:
-    #   print "WARNING: failed to copy %s to %s, redirecting to failed..." % (filename, destination)
-    #
+    mkdir_p(destination_directory)
+    print "%s moving to %s" % (filename, destination)
+    try:
+        shutil.move(filename, destination)
+        if destination_directory.startswith(PATH['image']):
+            EXISTING_FILES.add(destination_filename[16:])
+    except:
+        print "WARNING: failed to move %s to %s, redirecting to failed..." % (filename, destination)
+
 
 #
 # find_images(path)
@@ -136,15 +139,15 @@ def find_images(path):
             file_date = get_file_datetime(fullfn)
             file_hash = get_file_hash(fullfn)
 
-            # destination is: PATH['image']/YYYY/MM/HASH.EXTENSION
-            destfn = os.path.join(PATH['image'], file_date.strftime("%Y"), file_date.strftime("%m"), file_hash + ext)
+            # destination is: PATH['image']/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
+            destfn = os.path.join(PATH['image'], file_date.strftime("%Y"), file_date.strftime("%m"), "%s_%s" % (file_date.strftime("%Y%m%d-%H%M%S"), file_hash + ext))
             move_file(fullfn, destfn)
 
         for d in dirs:
             fulldn = os.path.join(root, d)
             # skip symlinks
             if os.path.islink(fulldn): continue
-            #
+            # recursively calls itself to check the other directories
             find_images(fulldn)
 
 # fai girare sul primo argomento
