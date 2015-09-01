@@ -6,4 +6,5 @@ if [ ! -d "$1" ]; then
   exit 1
 fi
 
-python photofix.sh "$1" 2>errors.log | tee run.log
+python photofix.py "$1" 2>errors.log | tee run.log
+
