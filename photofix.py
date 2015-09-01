@@ -50,7 +50,8 @@ def get_file_datetime(filename):
     try:
         exif_date = GExiv2.Metadata(filename).get_date_time()
         print "%s exif_date: %s" % (filename, exif_date.strftime("%s"))
-        if (fs_date > exif_date):
+        # avoid using the epoch if possible
+        if (fs_date > 0 and fs_date > exif_date):
             return exif_date
         else:
             return fs_date
