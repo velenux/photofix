@@ -78,10 +78,12 @@ def get_file_hash(filename):
 # moves the file and outputs the source and destination for logging
 #
 def move_file(filename, destination):
+    global PATH
     global DUP_COUNTER
     (original_directory, original_filename) = os.path.split(filename)
     (destination_directory, destination_filename) = os.path.split(destination)
-    (original_base_filename, original_extension) = os.path.splitext(filename)
+    (original_base_filename, original_extension) = os.path.splitext(original_filename)
+    destination_hash = destination_filename[16:]
 
     # if the destination is a directory, rebuild the destination with
     # directory and original filename so it becomes a full path
@@ -98,10 +100,11 @@ def move_file(filename, destination):
         return move_file(filename, newdest)
 
     # handle duplicates
-    if os.path.isfile(destination) or destination_filename in EXISTING_FILES:
+    if os.path.isfile(destination) or destination_hash in EXISTING_FILES:
         print "WARNING: %s seems like a duplicate, redirecting..." % (filename)
         DUP_COUNTER += 1
         if (original_filename != destination_filename):
+            # if the filenames are different, save the original one for reference
             newdest = os.path.join(PATH['duplicate'], "%s_%s-%s" % (original_base_filename, DUP_COUNTER, destination_filename))
         else:
             newdest = os.path.join(PATH['duplicate'], "%s_%s.%s" % (original_base_filename, DUP_COUNTER, original_extension))
@@ -112,7 +115,7 @@ def move_file(filename, destination):
     try:
         shutil.move(filename, destination)
         if destination_directory.startswith(PATH['image']):
-            EXISTING_FILES.add(destination_filename[16:])
+            EXISTING_FILES.add(destination_hash)
     except:
         print "WARNING: failed to move %s to %s, redirecting to failed..." % (filename, destination)
 
