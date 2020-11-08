@@ -15,6 +15,7 @@ aptitude install python-pyexiv2 exiv2 libgexiv2-2 libgexiv2-dev
 ```
 PATH = {
     'image': 'storage/images',
+    'video': 'storage/video'
     'non-image': 'storage/non-images',
     'duplicate': 'storage/duplicates',
     'failed': 'storage/failed'

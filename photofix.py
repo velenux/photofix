@@ -28,6 +28,7 @@ PATH = {
     'failed': 'storage/failed'
 }
 DUP_COUNTER = 0
+TS =  datetime.strftime(datetime.now(), "%Y-%m-%d")
 EXISTING_FILES = set([])
 
 
@@ -92,9 +93,6 @@ def move_file(filename, destination):
     if os.path.isdir(destination):
         destination = os.path.join(destination, original_filename)
 
-    # debug
-    print "%s preparing to move to %s" % (filename, destination)
-
     # handle destination links
     if os.path.islink(destination):
         print "WARNING: destination %s is a link, redirecting %s to failed" % (destination, filename)
@@ -113,7 +111,7 @@ def move_file(filename, destination):
         return move_file(filename, newdest)
 
     mkdir_p(destination_directory)
-    print "%s moving to %s" % (filename, destination)
+    print "mv to %s" % (destination)
     try:
         shutil.move(filename, destination)
         if destination_directory.startswith(PATH['image']):
@@ -123,10 +121,10 @@ def move_file(filename, destination):
 
 
 #
-# find_images(path)
+# explore_path(path)
 # recursively iterates on path, moving images around
 #
-def find_images(path):
+def explore_path(path):
     for root, dirs, files in os.walk(path):
         for f in files:
             fullfn = os.path.join(root, f)
@@ -137,25 +135,65 @@ def find_images(path):
             # save the file extension
             ext = os.path.splitext(fullfn)[1].lower()
 
-            # move non-image files to another place and continue to the next file
-            if not ext in VALID_IMAGES:
+            # print the file we're working on
+            print "%s" % (fullfn)
+
+            # handle different types of files
+            if ext in VALID_IMAGES:
+                handle_image(fullfn)
+                continue
+            elif ext in VALID_VIDEO:
+                handle_video(fullfn)
+                continue
+            else:
                 move_file(fullfn, PATH['non-image'])
                 continue
-
-            # recover metadata from the image
-            file_date = get_file_datetime(fullfn)
-            file_hash = get_file_hash(fullfn)
-
-            # destination is: PATH['image']/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
-            destfn = os.path.join(PATH['image'], file_date.strftime("%Y"), file_date.strftime("%m"), "%s_%s" % (file_date.strftime("%Y%m%d-%H%M%S"), file_hash + ext))
-            move_file(fullfn, destfn)
 
         for d in dirs:
             fulldn = os.path.join(root, d)
             # skip symlinks
             if os.path.islink(fulldn): continue
             # recursively calls itself to check the other directories
-            find_images(fulldn)
+            explore_path(fulldn)
+
+
+#
+# handle_image(filename)
+# renames and moves the single image
+#
+def handle_image(fullfn):
+    # get filename and extension
+    fn = os.path.split(fullfn)[1] # filename
+    bn, ext = os.path.splitext(fn) # basename and extension
+    ext = ext.lower() # lowercase extension
+
+    # recover metadata from the image
+    file_date = get_file_datetime(fullfn)
+    file_hash = get_file_hash(fullfn)
+
+    # destination is: PATH['image']/TS/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
+    destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), "%s_%s" % (file_date.strftime("%Y%m%d-%H%M%S"), file_hash + ext))
+    move_file(fullfn, destfn)
+
+
+#
+# handle_video(filename)
+# recursively iterates on path, moving videos around
+#
+def handle_video(fullfn):
+    # get filename and extension
+    fn = os.path.split(fullfn)[1] # filename
+    bn, ext = os.path.splitext(fn) # basename and extension
+    ext = ext.lower() # lowercase extension
+
+    # recover metadata from the video
+    file_date = get_file_datetime(fullfn)
+
+    # destination is: PATH['video']/TS/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
+    destfn = os.path.join(PATH['video'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), "%s_%s" % (file_date.strftime("%Y%m%d-%H%M%S"), bn + ext))
+    move_file(fullfn, destfn)
+
+
 
 # fai girare sul primo argomento
-find_images(sys.argv[1])
+explore_path(sys.argv[1])
