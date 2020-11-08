@@ -18,9 +18,11 @@ import errno
 
 # configuration
 VALID_IMAGES = set(['.cr2', '.cr3', '.crw', '.dng', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.gpr'])
+VALID_VIDEO = set(['.mp4', '.mkv'])
 
 PATH = {
     'image': 'storage/images',
+    'video': 'storage/video',
     'non-image': 'storage/non-images',
     'duplicate': 'storage/duplicates',
     'failed': 'storage/failed'
@@ -62,18 +64,16 @@ def get_file_datetime(filename):
 
 #
 # get_file_hash(filename)
-# returns a string made by the sha256 and md5 sum hexdigests of the file contents
+# returns the sha256 sum for the file as a string
 #
 def get_file_hash(filename):
     sha = hashlib.sha256()
-    md5 = hashlib.md5()
     with open(filename, 'rb') as fp:
         buf = fp.read(262144)
         while len(buf) > 0:
             sha.update(buf)
-            md5.update(buf)
             buf = fp.read(262144)
-    return "%s-%s" % (sha.hexdigest(), md5.hexdigest())
+    return sha.hexdigest()
 
 #
 # move_file(filename, destination)
