@@ -132,8 +132,11 @@ def explore_path(path):
             # skip symlinks
             if os.path.islink(fullfn): continue
 
-            # save the file extension
-            ext = os.path.splitext(fullfn)[1].lower()
+            # save the file name and extension
+            # in the base of sidecar files, bn will be the original image
+            # /path/to/image.ext.xmp -> /path/to/image.ext + .xmp
+            bn, ext = os.path.splitext(fullfn)
+            ext = ext.lower()
 
             # print the file we're working on
             print "%s" % (fullfn)
@@ -144,6 +147,10 @@ def explore_path(path):
                 continue
             elif ext in VALID_VIDEO:
                 handle_video(fullfn)
+                continue
+            elif ext == '.xmp' and os.path.isfile(bn):
+                # skip sidecar files with matching images: they will be handled
+                # during the original image handling pass
                 continue
             else:
                 move_file(fullfn, PATH['non-image'])
@@ -163,7 +170,7 @@ def explore_path(path):
 #
 def handle_image(fullfn):
     # get filename and extension
-    fn = os.path.split(fullfn)[1] # filename
+    dir, fn = os.path.split(fullfn) # dir and filename
     bn, ext = os.path.splitext(fn) # basename and extension
     ext = ext.lower() # lowercase extension
 
@@ -173,7 +180,16 @@ def handle_image(fullfn):
 
     # destination is: PATH['image']/TS/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
     destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), "%s_%s" % (file_date.strftime("%Y%m%d-%H%M%S"), file_hash + ext))
+
+    # move the file
     move_file(fullfn, destfn)
+
+    # if there is an XMP sidecar file, move that as well
+    for f in os.listdir(dir):
+        f_low = f.lower()
+        if f.startswith(fn) and f_low.endswith('.xmp'):
+            move_file(os.path.join(dir, f), destfn + '.xmp')
+
 
 
 #
