@@ -1,5 +1,14 @@
 # photofix
+
 Organize your photos by date and metadata.
+
+## Install
+
+On the latest Mint, I had to install:
+
+```
+aptitude install python-pyexiv2 exiv2 libgexiv2-2 libgexiv2-dev
+```
 
 ## Edit the paths
 

@@ -10,14 +10,15 @@ import hashlib
 from datetime import datetime
 
 # exif tags
-from gi.repository import GExiv2
+from gi.repository import GObject, GExiv2
 
 # for moving files and dirs
 import shutil
 import errno
 
 # configuration
-VALID_IMAGES = set(['.cr2', '.crw', '.png', '.jpg', '.jpeg', '.tif', '.tiff'])
+VALID_IMAGES = set(['.cr2', '.cr3', '.crw', '.dng', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.gpr'])
+
 PATH = {
     'image': 'storage/images',
     'non-image': 'storage/non-images',
@@ -46,10 +47,10 @@ def mkdir_p(path):
 #
 def get_file_datetime(filename):
     fs_date = datetime.fromtimestamp(os.path.getmtime(filename))
-    print "%s fs_date: %s" % (filename, fs_date.strftime("%s"))
+    #print "%s fs_date: %s" % (filename, fs_date.strftime("%s")) # debug
     try:
         exif_date = GExiv2.Metadata(filename).get_date_time()
-        print "%s exif_date: %s" % (filename, exif_date.strftime("%s"))
+        #print "%s exif_date: %s" % (filename, exif_date.strftime("%s")) # debug
         # avoid using the epoch if possible
         if (int(fs_date.strftime("%s")) == 0 or fs_date > exif_date):
             return exif_date
