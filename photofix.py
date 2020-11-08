@@ -129,8 +129,8 @@ def explore_path(path):
         for f in files:
             fullfn = os.path.join(root, f)
 
-            # skip symlinks
-            if os.path.islink(fullfn): continue
+            # skip symlinks and files that have already been moved (eg. xmp files)
+            if not os.path.isfile(fullfn): continue
 
             # save the file name and extension
             # in the base of sidecar files, bn will be the original image
