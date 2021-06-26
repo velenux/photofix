@@ -95,29 +95,29 @@ def move_file(filename, destination):
 
     # handle destination links
     if os.path.islink(destination):
-        print "WARNING: destination %s is a link, redirecting %s to failed" % (destination, filename)
+        print('WARNING: destination', destination, 'is a link, redirecting', filename, 'to failed')
         newdest = os.path.join(PATH['failed'], original_filename)
         return move_file(filename, newdest)
 
     # handle duplicates
     if os.path.isfile(destination) or destination_hash in EXISTING_FILES:
-        print "WARNING: %s seems like a duplicate, redirecting..." % (filename)
+        print('WARNING:', filename, 'seems like a duplicate, redirecting...')
         DUP_COUNTER += 1
         if (original_filename != destination_filename):
             # if the filenames are different, save the original one for reference
-            newdest = os.path.join(PATH['duplicate'], "%s_%s-%s" % (original_base_filename, DUP_COUNTER, destination_filename))
+            newdest = os.path.join(PATH['duplicate'], original_base_filename + '_' + str(DUP_COUNTER) + '-' + destination_filename)
         else:
-            newdest = os.path.join(PATH['duplicate'], "%s_%s.%s" % (original_base_filename, DUP_COUNTER, original_extension))
+            newdest = os.path.join(PATH['duplicate'], original_base_filename + '_' + str(DUP_COUNTER) + '.' + original_extension)
         return move_file(filename, newdest)
 
     mkdir_p(destination_directory)
-    print "mv to %s" % (destination)
+    print('mv to', destination)
     try:
         shutil.move(filename, destination)
         if destination_directory.startswith(PATH['image']):
             EXISTING_FILES.add(destination_hash)
     except:
-        print "WARNING: failed to move %s to %s, redirecting to failed..." % (filename, destination)
+        print('WARNING: failed to move', filename, 'to', destination, 'redirecting to failed...')
 
 
 #
@@ -139,7 +139,7 @@ def explore_path(path):
             ext = ext.lower()
 
             # print the file we're working on
-            print "%s" % (fullfn)
+            print(fullfn)
 
             # handle different types of files
             if ext in VALID_IMAGES:
@@ -179,7 +179,7 @@ def handle_image(fullfn):
     file_hash = get_file_hash(fullfn)
 
     # destination is: PATH['image']/TS/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
-    destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), "%s_%s" % (file_date.strftime("%Y%m%d-%H%M%S"), file_hash + ext))
+    destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), file_date.strftime("%Y%m%d-%H%M%S") + '_' + file_hash + ext)
 
     # move the file
     move_file(fullfn, destfn)
@@ -206,7 +206,7 @@ def handle_video(fullfn):
     file_date = get_file_datetime(fullfn)
 
     # destination is: PATH['video']/TS/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
-    destfn = os.path.join(PATH['video'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), "%s_%s" % (file_date.strftime("%Y%m%d-%H%M%S"), bn + ext))
+    destfn = os.path.join(PATH['video'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), file_date.strftime("%Y%m%d-%H%M%S") + '_' + bn + ext)
     move_file(fullfn, destfn)
 
 
