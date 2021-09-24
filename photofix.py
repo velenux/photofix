@@ -17,7 +17,7 @@ import shutil
 import errno
 
 # configuration
-VALID_IMAGES = set(['.cr2', '.cr3', '.crw', '.dng', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.gpr'])
+VALID_IMAGES = set(['.cr2', '.cr3', '.crw', '.dng', '.gpr', '.jpg', '.jpeg', '.png', '.raf', '.tif', '.tiff'])
 VALID_VIDEO = set(['.mp4', '.mkv'])
 
 PATH = {
