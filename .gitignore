@@ -1,3 +1,13 @@
+# custom/test/build
+pf.*
+TODO.md
+cleanup.sh
+storage/
+test-template/
+test.sh
+test_images/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
