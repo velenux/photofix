@@ -3,9 +3,7 @@ pf.*
 TODO.md
 cleanup.sh
 storage/
-test-template/
-test.sh
-test_images/
+test*
 
 
 # Byte-compiled / optimized / DLL files
