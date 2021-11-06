@@ -179,7 +179,7 @@ def handle_image(fullfn):
     file_hash = get_file_hash(fullfn)
 
     # destination is: PATH['image']/TS/YYYYmmdd-HHMMSS_ORIGINAL-FILENAME_HASH.EXTENSION
-    destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), file_date.strftime("%Y%m%d-%H%M%S") + '--' + bn + '--' + file_hash + ext)
+    destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y%m%d-%H%M%S") + '--' + bn + '--' + file_hash + ext)
 
     # move the file
     move_file(fullfn, destfn)
@@ -205,8 +205,8 @@ def handle_video(fullfn):
     # recover metadata from the video
     file_date = get_file_datetime(fullfn)
 
-    # destination is: PATH['video']/TS/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
-    destfn = os.path.join(PATH['video'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), file_date.strftime("%Y%m%d-%H%M%S") + '_' + bn + ext)
+    # destination is: PATH['video']/TS/YYYYmmdd-HHMMSS_HASH.EXTENSION
+    destfn = os.path.join(PATH['video'], TS, file_date.strftime("%Y%m%d-%H%M%S") + '_' + bn + ext)
     move_file(fullfn, destfn)
 
 
