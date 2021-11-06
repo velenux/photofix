@@ -21,11 +21,11 @@ VALID_IMAGES = set(['.cr2', '.cr3', '.crw', '.dng', '.gpr', '.jpg', '.jpeg', '.p
 VALID_VIDEO = set(['.mp4', '.mkv'])
 
 PATH = {
-    'image': 'storage/images',
-    'video': 'storage/video',
-    'non-image': 'storage/non-images',
-    'duplicate': 'storage/duplicates',
-    'failed': 'storage/failed'
+    'image': '/PATH/TO/images',
+    'video': '/PATH/TO/video',
+    'non-image': '/PATH/TO/non-images',
+    'duplicate': '/PATH/TO/duplicates',
+    'failed': '/PATH/TO/failed'
 }
 DUP_COUNTER = 0
 TS =  datetime.strftime(datetime.now(), "%Y-%m-%d")
@@ -178,8 +178,8 @@ def handle_image(fullfn):
     file_date = get_file_datetime(fullfn)
     file_hash = get_file_hash(fullfn)
 
-    # destination is: PATH['image']/TS/YYYY/mm/YYYYmmdd-HHMMSS_HASH.EXTENSION
-    destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), file_date.strftime("%Y%m%d-%H%M%S") + '_' + file_hash + ext)
+    # destination is: PATH['image']/TS/YYYYmmdd-HHMMSS_ORIGINAL-FILENAME_HASH.EXTENSION
+    destfn = os.path.join(PATH['image'], TS, file_date.strftime("%Y"), file_date.strftime("%m"), file_date.strftime("%Y%m%d-%H%M%S") + '--' + bn + '--' + file_hash + ext)
 
     # move the file
     move_file(fullfn, destfn)
