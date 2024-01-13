@@ -111,13 +111,23 @@ def move_file(filename, destination):
         return move_file(filename, newdest)
 
     mkdir_p(destination_directory)
-    print('mv to', destination)
+    print('copy to', destination)
     try:
-        shutil.move(filename, destination)
+        shutil.copy2(filename, destination)
         if destination_directory.startswith(PATH['image']):
             EXISTING_FILES.add(destination_hash)
-    except:
-        print('WARNING: failed to move', filename, 'to', destination, 'redirecting to failed...')
+    except Exception as e:
+        print('WARNING: failed to copy', filename, 'to', destination, '-', e)
+        return None
+    
+    if os.path.isfile(destination):
+        try:
+            print('removing', filename)
+            os.remove(filename)
+        except Exception as e:
+            print('WARNING: failed to remove', filename, '-', e)
+
+    
 
 
 #
