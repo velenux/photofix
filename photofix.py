@@ -10,6 +10,8 @@ import hashlib
 from datetime import datetime
 
 # exif tags
+import gi
+gi.require_version('GExiv2', '0.10')
 from gi.repository import GObject, GExiv2
 
 # for moving files and dirs
@@ -198,7 +200,39 @@ def handle_image(fullfn):
     for f in os.listdir(dir):
         f_low = f.lower()
         if f.startswith(fn) and f_low.endswith('.xmp'):
-            move_file(os.path.join(dir, f), destfn + '.xmp')
+            handle_xmp(os.path.join(dir, f), destfn)
+
+
+#
+# handle_xmp(path_to_xmp_file, path_to_destination_image)
+# renames the XMP file and changes the file internal reference name if needed
+#
+def handle_xmp(path_src_xmp, path_dest_img):
+    # get filename and extension
+    srcdir, srcxmp = os.path.split(path_src_xmp)   # source dir and filename
+    srcimg, ext = os.path.splitext(srcxmp)         # source image and extension
+    destdir, destimg = os.path.split(path_dest_img) # destination dir and filename
+    path_dest_xmp = path_dest_img + '.xmp'
+
+    # just move the file if the file name is not changing
+    if srcimg == destimg:
+        move_file(path_src_xmp, path_dest_xmp)
+        return True
+
+    # change the filename reference inside the file, if the name changes
+    try:
+        with open(path_src_xmp, 'r') as file:
+            xmp = file.read()
+
+        print('XMP copy to', path_dest_xmp)
+        with open(path_dest_xmp, 'w') as file:
+            file.write(xmp.replace(srcimg, destimg))
+
+        print('XMP removing', path_src_xmp)
+        os.remove(path_src_xmp)
+
+    except Exception as e:
+        print('WARNING: failed to handle', path_src_xmp, '-', e)
 
 
 
